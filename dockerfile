@@ -1,26 +1,20 @@
 # Etapa de build
 FROM node:22 AS builder
-
-WORKDIR /app
-
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
-
+WORKDIR /app_backend
+COPY package*.json ./
+RUN npm install
 COPY . .
 
 RUN pnpm run build
 
 # Etapa de producción
 FROM node:22
-
-WORKDIR /app
-
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-COPY --from=builder /app .
-
-EXPOSE 3001
-
-CMD ["node", "dist/app.js"]
+WORKDIR /app_backend
+COPY --from=builder /app_backend ./
+# Copiar entrypoint.sh desde el contexto del build (citary-backend)
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+# Instalar netcat y dos2unix
+RUN apt-get update && apt-get install -y netcat-traditional dos2unix && dos2unix /entrypoint.sh && apt-get clean && rm -rf /var/lib/apt/lists/*
+EXPOSE 3000
+ENTRYPOINT ["/entrypoint.sh"]
