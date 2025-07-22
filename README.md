@@ -1,6 +1,6 @@
 ## Backend - README
 
-<h1 align="center"><b>Citary</b></h1>
+<h1 align="center"><b>Nubrik</b></h1>
 <h2 align="center"><b>Backend</b></h2>
 
 <p align="center">System for managing medical appointments</p>
@@ -19,7 +19,7 @@
 
 ## Introduction
 
-**Citary** backend is the RESTful API service for handling authentication, appointment logic, and interaction with the PostgreSQL database.
+**Nubrik** backend is the RESTful API service for handling authentication, appointment logic, and interaction with the PostgreSQL database.
 It is designed as part of a full-stack containerized application, meant to be deployed locally using Kubernetes.
 
 ## Technologies Used

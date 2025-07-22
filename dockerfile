@@ -20,7 +20,7 @@ RUN npm run build
 FROM node:22 AS production
 WORKDIR /app_backend
 COPY --from=builder /app_backend ./
-# Copiar entrypoint.sh desde el contexto del build (citary-backend)
+# Copiar entrypoint.sh desde el contexto del build (nubrik-backend)
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 # Instalar netcat y dos2unix
