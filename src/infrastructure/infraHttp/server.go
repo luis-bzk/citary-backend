@@ -1,4 +1,4 @@
-package http
+package infraHttp
 
 type Server struct {
 	port   int

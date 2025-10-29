@@ -1,4 +1,4 @@
-package usecase_auth
+package useCaseAuth
 
 import (
 	dtosAuth "citary-backend/src/domain/dtos/auth"
