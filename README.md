@@ -31,7 +31,7 @@ A modern, production-ready Go backend API built with Clean Architecture principl
 3. **Configure `.env`**
    ```env
    DATABASE_URL=postgres://user:password@localhost:5432/citary?sslmode=disable
-   PORT=3005
+   PORT=3001
    ```
 
 4. **Install dependencies**
@@ -244,7 +244,7 @@ go run main.go
 go run -race main.go
 
 # Run with specific environment
-DATABASE_URL="postgres://..." PORT=3005 go run main.go
+DATABASE_URL="postgres://..." PORT=3001 go run main.go
 ```
 
 #### Run Built Binary
@@ -556,7 +556,7 @@ For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md)
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `DATABASE_URL` | PostgreSQL connection string | - | ✅ Yes |
-| `PORT` | HTTP server port | `3005` | ❌ No |
+| `PORT` | HTTP server port | `3001` | ❌ No |
 
 ### Database Configuration
 

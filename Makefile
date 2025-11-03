@@ -62,9 +62,9 @@ docker-push: docker-build ## Build and push Docker image to registry
 
 docker-run: ## Run Docker container locally
 	@echo "Running Docker container..."
-	docker run --rm -p 3005:3005 \
+	docker run --rm -p 3001:3001 \
 		-e DATABASE_URL="$(DATABASE_URL)" \
-		-e PORT=3005 \
+		-e PORT=3001 \
 		$(DOCKER_IMAGE):latest
 
 docker-test: docker-build ## Build and test Docker image locally

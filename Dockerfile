@@ -61,14 +61,14 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 # Expose port (should match your app's PORT env var)
-EXPOSE 3005
+EXPOSE 3001
 
 # Health check (Kubernetes will use this for liveness/readiness probes)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3005/health || exit 1
+    CMD curl -f http://localhost:3001/health || exit 1
 
 # Set environment variables (can be overridden by Kubernetes)
-ENV PORT=3005
+ENV PORT=3001
 
 # Run the application
 ENTRYPOINT ["/app/citary-backend"]

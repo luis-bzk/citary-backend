@@ -284,7 +284,7 @@ func TestE2E_UserSignup(t *testing.T) {
 ### Environment Variables
 ```env
 DATABASE_URL=postgres://user:pass@localhost:5432/dbname?sslmode=disable
-PORT=3005
+PORT=3001
 ```
 
 ### Database Connection Pool

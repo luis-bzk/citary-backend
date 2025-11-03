@@ -33,9 +33,6 @@ func NewServer(port int, handler http.Handler) *Server {
 // Start starts the HTTP server
 func (s *Server) Start() error {
 	log.Printf("🚀 HTTP server started on http://localhost:%d", s.port)
-	log.Printf("📋 Available endpoints:")
-	log.Printf("   - POST   http://localhost:%d/auth/signup", s.port)
-	log.Printf("   - GET    http://localhost:%d/health", s.port)
 
 	return s.httpServer.ListenAndServe()
 }

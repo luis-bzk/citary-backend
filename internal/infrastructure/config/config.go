@@ -28,7 +28,7 @@ func Load() {
 		log.Fatal("DATABASE_URL environment variable is required")
 	}
 
-	port := getEnvAsInt("PORT", 3005)
+	port := getEnvAsInt("PORT", 3001)
 
 	AppConfig = &Config{
 		DatabaseURL: databaseURL,

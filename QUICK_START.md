@@ -239,7 +239,7 @@ go test -v ./...
 DATABASE_URL=postgres://user:pass@localhost:5432/citary?sslmode=disable
 
 # Optional
-PORT=3005  # Default: 3005
+PORT=3001  # Default: 3001
 ```
 
 ---
