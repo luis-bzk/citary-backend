@@ -8,6 +8,7 @@
 !README.md
 ARCHITECTURE.md
 QUICK_START.md
+TESTING.md
 
 # IDE and editors
 .vscode
@@ -34,6 +35,7 @@ dist/
 
 # Test files and coverage
 *_test.go
+test/
 testdata/
 coverage.out
 coverage.html

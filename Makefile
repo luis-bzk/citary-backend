@@ -23,15 +23,32 @@ run: ## Run the application locally
 	@echo "Running $(APP_NAME)..."
 	go run ./cmd/api
 
-test: ## Run tests
-	@echo "Running tests..."
-	go test -v -race -cover ./...
+test: ## Run all tests
+	@echo "Running all tests..."
+	go test -v ./test/...
+
+test-unit: ## Run unit tests only
+	@echo "Running unit tests..."
+	go test -v ./test/unit/...
+
+test-integration: ## Run integration tests (without DB)
+	@echo "Running integration tests..."
+	go test -v ./test/integration/handlers/...
+
+test-integration-db: ## Run integration tests with database
+	@echo "Running integration tests with database..."
+	@echo "Make sure TEST_DATABASE_URL is set"
+	@TEST_DATABASE_URL="$(TEST_DATABASE_URL)" go test -v ./test/integration/repositories/...
 
 test-coverage: ## Run tests with coverage report
 	@echo "Running tests with coverage..."
-	go test -coverprofile=coverage.out ./...
+	go test -coverprofile=coverage.out ./test/...
 	go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report: coverage.html"
+
+test-race: ## Run tests with race detector
+	@echo "Running tests with race detector..."
+	go test -v -race ./test/...
 
 fmt: ## Format code
 	@echo "Formatting code..."
