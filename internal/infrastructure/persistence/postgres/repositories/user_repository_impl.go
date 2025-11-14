@@ -26,12 +26,14 @@ func NewUserRepositoryImpl(db *sql.DB) *UserRepositoryImpl {
 }
 
 // FindByEmail retrieves a user by their email address
+// Returns (nil, nil) if not found - business layer decides if that's an error
+// Returns (nil, error) only on technical failures (DB connection, query errors, etc.)
 func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*entities.User, error) {
 	start := time.Now()
 	log.Printf("[UserRepository] FindByEmail: email=%s", email)
 
 	query := `
-		SELECT use_id, use_email, use_password_hash, use_email_verified,
+		SELECT use_id, id_role, use_email, use_password_hash, use_email_verified,
 		       use_phone_verified, use_two_factor_enabled, use_two_factor_secret,
 		       use_last_login, use_login_attempts, use_locked_until,
 		       use_terms_accepted_at, use_privacy_accepted_at, use_created_date, use_record_status
@@ -42,6 +44,7 @@ func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*en
 
 	err := r.db.QueryRowContext(ctx, query, email).Scan(
 		&dbEntity.UseID,
+		&dbEntity.IdRole,
 		&dbEntity.UseEmail,
 		&dbEntity.UsePasswordHash,
 		&dbEntity.UseEmailVerified,
@@ -59,11 +62,13 @@ func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*en
 
 	duration := time.Since(start)
 
+	// Not found is NOT an error at infrastructure level - it's a valid result
 	if err == sql.ErrNoRows {
 		log.Printf("[UserRepository] FindByEmail: user not found, email=%s, duration=%v", email, duration)
-		return nil, errors.ErrNotFound("User not found")
+		return nil, nil
 	}
 
+	// Technical errors (DB connection, query syntax, etc.) ARE errors
 	if err != nil {
 		log.Printf("[UserRepository] FindByEmail ERROR: email=%s, error=%v, duration=%v", email, err, duration)
 		return nil, errors.ErrInternal(err)
@@ -76,19 +81,20 @@ func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*en
 // Create persists a new user to the database
 func (r *UserRepositoryImpl) Create(ctx context.Context, user *entities.User) error {
 	start := time.Now()
-	log.Printf("[UserRepository] Create: email=%s, emailVerified=%v", user.Email, user.EmailVerified)
+	log.Printf("[UserRepository] Create: email=%s, roleID=%d, emailVerified=%v", user.Email, user.RoleID, user.EmailVerified)
 
 	query := `
 		INSERT INTO data.data_user (
-			use_email, use_password_hash, use_email_verified, use_phone_verified,
+			id_role, use_email, use_password_hash, use_email_verified, use_phone_verified,
 			use_two_factor_enabled, use_login_attempts, use_created_date, use_record_status
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING use_id
 	`
 
 	err := r.db.QueryRowContext(
 		ctx,
 		query,
+		user.RoleID,
 		user.Email,
 		user.PasswordHash,
 		user.EmailVerified,
@@ -102,10 +108,10 @@ func (r *UserRepositoryImpl) Create(ctx context.Context, user *entities.User) er
 	duration := time.Since(start)
 
 	if err != nil {
-		log.Printf("[UserRepository] Create ERROR: email=%s, error=%v, duration=%v", user.Email, err, duration)
+		log.Printf("[UserRepository] Create ERROR: email=%s, roleID=%d, error=%v, duration=%v", user.Email, user.RoleID, err, duration)
 		return errors.ErrInternal(err)
 	}
 
-	log.Printf("[UserRepository] Create: success, email=%s, userID=%d, duration=%v", user.Email, user.ID, duration)
+	log.Printf("[UserRepository] Create: success, email=%s, roleID=%d, userID=%d, duration=%v", user.Email, user.RoleID, user.ID, duration)
 	return nil
 }

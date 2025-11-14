@@ -23,6 +23,7 @@ func TestUserMapper_ToDomainEntity_NullOptionalFields(t *testing.T) {
 
 	dbEntity := &dbEntities.UserDB{
 		UseID:                1,
+		IdRole:               1, // Default role ID
 		UseEmail:             "test@example.com",
 		UsePasswordHash:      "hashed_password",
 		UseEmailVerified:     false,
@@ -44,6 +45,7 @@ func TestUserMapper_ToDomainEntity_NullOptionalFields(t *testing.T) {
 	// Assert
 	assert.NotNil(t, domainEntity)
 	assert.Equal(t, 1, domainEntity.ID)
+	assert.Equal(t, 1, domainEntity.RoleID)
 	assert.Equal(t, "test@example.com", domainEntity.Email)
 	assert.Equal(t, "hashed_password", domainEntity.PasswordHash)
 	assert.False(t, domainEntity.EmailVerified)
@@ -71,6 +73,7 @@ func TestUserMapper_ToDomainEntity_WithAllOptionalFields(t *testing.T) {
 
 	dbEntity := &dbEntities.UserDB{
 		UseID:                2,
+		IdRole:               2, // Different role ID
 		UseEmail:             "full@example.com",
 		UsePasswordHash:      "hashed_password",
 		UseEmailVerified:     true,
@@ -92,6 +95,7 @@ func TestUserMapper_ToDomainEntity_WithAllOptionalFields(t *testing.T) {
 	// Assert
 	assert.NotNil(t, domainEntity)
 	assert.Equal(t, 2, domainEntity.ID)
+	assert.Equal(t, 2, domainEntity.RoleID)
 	assert.Equal(t, "full@example.com", domainEntity.Email)
 	assert.True(t, domainEntity.EmailVerified)
 	assert.True(t, domainEntity.PhoneVerified)
@@ -120,6 +124,7 @@ func TestUserMapper_ToDBEntity_WithNilPointers(t *testing.T) {
 
 	domainEntity := &entities.User{
 		ID:                1,
+		RoleID:            1, // Default role ID
 		Email:             "test@example.com",
 		PasswordHash:      "hashed_password",
 		EmailVerified:     false,
@@ -141,6 +146,7 @@ func TestUserMapper_ToDBEntity_WithNilPointers(t *testing.T) {
 	// Assert
 	assert.NotNil(t, dbEntity)
 	assert.Equal(t, 1, dbEntity.UseID)
+	assert.Equal(t, 1, dbEntity.IdRole)
 	assert.Equal(t, "test@example.com", dbEntity.UseEmail)
 	assert.Equal(t, "hashed_password", dbEntity.UsePasswordHash)
 	assert.False(t, dbEntity.UseEmailVerified)
@@ -168,6 +174,7 @@ func TestUserMapper_ToDBEntity_WithAllPointers(t *testing.T) {
 
 	domainEntity := &entities.User{
 		ID:                2,
+		RoleID:            2, // Different role ID
 		Email:             "full@example.com",
 		PasswordHash:      "hashed_password",
 		EmailVerified:     true,
@@ -189,6 +196,7 @@ func TestUserMapper_ToDBEntity_WithAllPointers(t *testing.T) {
 	// Assert
 	assert.NotNil(t, dbEntity)
 	assert.Equal(t, 2, dbEntity.UseID)
+	assert.Equal(t, 2, dbEntity.IdRole)
 	assert.Equal(t, "full@example.com", dbEntity.UseEmail)
 	assert.True(t, dbEntity.UseEmailVerified)
 	assert.True(t, dbEntity.UsePhoneVerified)
@@ -219,6 +227,7 @@ func TestUserMapper_RoundTrip_PreservesData(t *testing.T) {
 
 	originalDomainEntity := &entities.User{
 		ID:                3,
+		RoleID:            1, // Patient role
 		Email:             "roundtrip@example.com",
 		PasswordHash:      "hashed_password",
 		EmailVerified:     true,
@@ -240,6 +249,7 @@ func TestUserMapper_RoundTrip_PreservesData(t *testing.T) {
 
 	// Assert - All fields should be preserved
 	assert.Equal(t, originalDomainEntity.ID, resultDomainEntity.ID)
+	assert.Equal(t, originalDomainEntity.RoleID, resultDomainEntity.RoleID)
 	assert.Equal(t, originalDomainEntity.Email, resultDomainEntity.Email)
 	assert.Equal(t, originalDomainEntity.PasswordHash, resultDomainEntity.PasswordHash)
 	assert.Equal(t, originalDomainEntity.EmailVerified, resultDomainEntity.EmailVerified)
@@ -262,6 +272,7 @@ func TestUserMapper_RoundTrip_WithAllFieldsNull(t *testing.T) {
 
 	originalDomainEntity := &entities.User{
 		ID:                4,
+		RoleID:            1, // Patient role
 		Email:             "minimal@example.com",
 		PasswordHash:      "hashed_password",
 		EmailVerified:     false,
@@ -283,6 +294,7 @@ func TestUserMapper_RoundTrip_WithAllFieldsNull(t *testing.T) {
 
 	// Assert - All fields should be preserved
 	assert.Equal(t, originalDomainEntity.ID, resultDomainEntity.ID)
+	assert.Equal(t, originalDomainEntity.RoleID, resultDomainEntity.RoleID)
 	assert.Equal(t, originalDomainEntity.Email, resultDomainEntity.Email)
 	assert.Nil(t, resultDomainEntity.TwoFactorSecret)
 	assert.Nil(t, resultDomainEntity.LastLogin)

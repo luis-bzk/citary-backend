@@ -21,8 +21,9 @@ import (
 
 func TestSignupUserUseCase_Execute_InvalidEmail_Empty(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -37,14 +38,16 @@ func TestSignupUserUseCase_Execute_InvalidEmail_Empty(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, user)
 	assert.Contains(t, err.Error(), "Email cannot be empty")
-	mockRepository.AssertNotCalled(t, "FindByEmail")
-	mockRepository.AssertNotCalled(t, "Create")
+	mockUserRepository.AssertNotCalled(t, "FindByEmail")
+	mockUserRepository.AssertNotCalled(t, "Create")
+	mockRoleRepository.AssertNotCalled(t, "FindByCode")
 }
 
 func TestSignupUserUseCase_Execute_InvalidEmail_BadFormat(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -59,14 +62,16 @@ func TestSignupUserUseCase_Execute_InvalidEmail_BadFormat(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, user)
 	assert.Contains(t, err.Error(), "Email format is invalid")
-	mockRepository.AssertNotCalled(t, "FindByEmail")
-	mockRepository.AssertNotCalled(t, "Create")
+	mockUserRepository.AssertNotCalled(t, "FindByEmail")
+	mockUserRepository.AssertNotCalled(t, "Create")
+	mockRoleRepository.AssertNotCalled(t, "FindByCode")
 }
 
 func TestSignupUserUseCase_Execute_InvalidPassword_TooShort(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -81,14 +86,16 @@ func TestSignupUserUseCase_Execute_InvalidPassword_TooShort(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, user)
 	assert.Contains(t, err.Error(), "Password must be at least 8 characters")
-	mockRepository.AssertNotCalled(t, "FindByEmail")
-	mockRepository.AssertNotCalled(t, "Create")
+	mockUserRepository.AssertNotCalled(t, "FindByEmail")
+	mockUserRepository.AssertNotCalled(t, "Create")
+	mockRoleRepository.AssertNotCalled(t, "FindByCode")
 }
 
 func TestSignupUserUseCase_Execute_InvalidPassword_NoUppercase(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -103,14 +110,16 @@ func TestSignupUserUseCase_Execute_InvalidPassword_NoUppercase(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, user)
 	assert.Contains(t, err.Error(), "Password must contain at least one uppercase letter")
-	mockRepository.AssertNotCalled(t, "FindByEmail")
-	mockRepository.AssertNotCalled(t, "Create")
+	mockUserRepository.AssertNotCalled(t, "FindByEmail")
+	mockUserRepository.AssertNotCalled(t, "Create")
+	mockRoleRepository.AssertNotCalled(t, "FindByCode")
 }
 
 func TestSignupUserUseCase_Execute_InvalidPassword_NoDigit(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -125,14 +134,16 @@ func TestSignupUserUseCase_Execute_InvalidPassword_NoDigit(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, user)
 	assert.Contains(t, err.Error(), "Password must contain at least one digit")
-	mockRepository.AssertNotCalled(t, "FindByEmail")
-	mockRepository.AssertNotCalled(t, "Create")
+	mockUserRepository.AssertNotCalled(t, "FindByEmail")
+	mockUserRepository.AssertNotCalled(t, "Create")
+	mockRoleRepository.AssertNotCalled(t, "FindByCode")
 }
 
 func TestSignupUserUseCase_Execute_InvalidPassword_NoSpecialChar(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -147,14 +158,16 @@ func TestSignupUserUseCase_Execute_InvalidPassword_NoSpecialChar(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, user)
 	assert.Contains(t, err.Error(), "Password must contain at least one special character")
-	mockRepository.AssertNotCalled(t, "FindByEmail")
-	mockRepository.AssertNotCalled(t, "Create")
+	mockUserRepository.AssertNotCalled(t, "FindByEmail")
+	mockUserRepository.AssertNotCalled(t, "Create")
+	mockRoleRepository.AssertNotCalled(t, "FindByCode")
 }
 
 func TestSignupUserUseCase_Execute_UserAlreadyExists(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -167,8 +180,9 @@ func TestSignupUserUseCase_Execute_UserAlreadyExists(t *testing.T) {
 		Email: "existing@example.com",
 	}
 
-	// Mock: User already exists
-	mockRepository.On("FindByEmail", ctx, "existing@example.com").Return(existingUser, nil)
+	// Mock: User already exists (with active status for business validation)
+	existingUser.RecordStatus = constants.RecordStatus.Active
+	mockUserRepository.On("FindByEmail", ctx, "existing@example.com").Return(existingUser, nil)
 
 	// Act
 	user, err := useCase.Execute(ctx, request)
@@ -177,14 +191,16 @@ func TestSignupUserUseCase_Execute_UserAlreadyExists(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, user)
 	assert.Contains(t, err.Error(), constants.ErrorMessages.UserAlreadyExists)
-	mockRepository.AssertExpectations(t)
-	mockRepository.AssertNotCalled(t, "Create")
+	mockUserRepository.AssertExpectations(t)
+	mockUserRepository.AssertNotCalled(t, "Create")
+	mockRoleRepository.AssertNotCalled(t, "FindByCode")
 }
 
 func TestSignupUserUseCase_Execute_RepositoryCreateError(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -192,11 +208,19 @@ func TestSignupUserUseCase_Execute_RepositoryCreateError(t *testing.T) {
 		Password: "ValidPass123!",
 	}
 
-	// Mock: User doesn't exist
-	mockRepository.On("FindByEmail", ctx, "test@example.com").Return(nil, errors.ErrNotFound("User not found"))
+	// Mock: User doesn't exist (returns nil, nil per architecture)
+	mockUserRepository.On("FindByEmail", ctx, "test@example.com").Return(nil, nil)
+
+	// Mock: Default role exists
+	defaultRole := &entities.Role{
+		ID:           1,
+		Code:         constants.DefaultUserRole,
+		RecordStatus: constants.RecordStatus.Active,
+	}
+	mockRoleRepository.On("FindByCode", ctx, constants.DefaultUserRole).Return(defaultRole, nil)
 
 	// Mock: Create fails
-	mockRepository.On("Create", ctx, mock.AnythingOfType("*entities.User")).Return(errors.ErrInternal(nil))
+	mockUserRepository.On("Create", ctx, mock.AnythingOfType("*entities.User")).Return(errors.ErrInternal(nil))
 
 	// Act
 	user, err := useCase.Execute(ctx, request)
@@ -204,7 +228,8 @@ func TestSignupUserUseCase_Execute_RepositoryCreateError(t *testing.T) {
 	// Assert
 	assert.Error(t, err)
 	assert.Nil(t, user)
-	mockRepository.AssertExpectations(t)
+	mockUserRepository.AssertExpectations(t)
+	mockRoleRepository.AssertExpectations(t)
 }
 
 // ==========================================
@@ -213,8 +238,9 @@ func TestSignupUserUseCase_Execute_RepositoryCreateError(t *testing.T) {
 
 func TestSignupUserUseCase_Execute_Success(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -222,11 +248,19 @@ func TestSignupUserUseCase_Execute_Success(t *testing.T) {
 		Password: "ValidPass123!",
 	}
 
-	// Mock: User doesn't exist
-	mockRepository.On("FindByEmail", ctx, "newuser@example.com").Return(nil, errors.ErrNotFound("User not found"))
+	// Mock: User doesn't exist (returns nil, nil per architecture)
+	mockUserRepository.On("FindByEmail", ctx, "newuser@example.com").Return(nil, nil)
+
+	// Mock: Default role exists
+	defaultRole := &entities.Role{
+		ID:           1,
+		Code:         constants.DefaultUserRole,
+		RecordStatus: constants.RecordStatus.Active,
+	}
+	mockRoleRepository.On("FindByCode", ctx, constants.DefaultUserRole).Return(defaultRole, nil)
 
 	// Mock: Create succeeds and sets the ID
-	mockRepository.On("Create", ctx, mock.AnythingOfType("*entities.User")).
+	mockUserRepository.On("Create", ctx, mock.AnythingOfType("*entities.User")).
 		Run(func(args mock.Arguments) {
 			user := args.Get(1).(*entities.User)
 			user.ID = 1 // Simulate database setting the ID
@@ -240,6 +274,7 @@ func TestSignupUserUseCase_Execute_Success(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
 	assert.Equal(t, "newuser@example.com", user.Email)
+	assert.Equal(t, 1, user.RoleID, "User should have default role ID")
 	assert.NotEmpty(t, user.PasswordHash, "Password should be hashed")
 	assert.NotEqual(t, "ValidPass123!", user.PasswordHash, "Password should not be stored in plain text")
 	assert.False(t, user.EmailVerified)
@@ -249,7 +284,8 @@ func TestSignupUserUseCase_Execute_Success(t *testing.T) {
 	assert.Equal(t, constants.RecordStatus.Active, user.RecordStatus)
 	assert.False(t, user.CreatedDate.IsZero(), "CreatedDate should be set")
 	assert.True(t, user.CreatedDate.Before(time.Now().Add(1*time.Second)))
-	mockRepository.AssertExpectations(t)
+	mockUserRepository.AssertExpectations(t)
+	mockRoleRepository.AssertExpectations(t)
 }
 
 func TestSignupUserUseCase_Execute_Success_DifferentEmails(t *testing.T) {
@@ -266,8 +302,9 @@ func TestSignupUserUseCase_Execute_Success_DifferentEmails(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Arrange
-			mockRepository := new(mockRepo.MockUserRepository)
-			useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+			mockUserRepository := new(mockRepo.MockUserRepository)
+			mockRoleRepository := new(mockRepo.MockRoleRepository)
+			useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 			ctx := context.Background()
 
 			request := auth.SignupRequest{
@@ -275,14 +312,23 @@ func TestSignupUserUseCase_Execute_Success_DifferentEmails(t *testing.T) {
 				Password: "ValidPass123!",
 			}
 
-			// Mock: User doesn't exist
-			mockRepository.On("FindByEmail", ctx, tc.email).Return(nil, errors.ErrNotFound("User not found"))
+			// Mock: User doesn't exist (returns nil, nil per architecture)
+			mockUserRepository.On("FindByEmail", ctx, tc.email).Return(nil, nil)
+
+			// Mock: Default role exists
+			defaultRole := &entities.Role{
+				ID:           1,
+				Code:         constants.DefaultUserRole,
+				RecordStatus: constants.RecordStatus.Active,
+			}
+			mockRoleRepository.On("FindByCode", ctx, constants.DefaultUserRole).Return(defaultRole, nil)
 
 			// Mock: Create succeeds
-			mockRepository.On("Create", ctx, mock.AnythingOfType("*entities.User")).
+			mockUserRepository.On("Create", ctx, mock.AnythingOfType("*entities.User")).
 				Run(func(args mock.Arguments) {
 					user := args.Get(1).(*entities.User)
 					user.ID = 1
+					user.RoleID = 1
 				}).
 				Return(nil)
 
@@ -293,15 +339,18 @@ func TestSignupUserUseCase_Execute_Success_DifferentEmails(t *testing.T) {
 			assert.NoError(t, err)
 			assert.NotNil(t, user)
 			assert.Equal(t, tc.email, user.Email)
-			mockRepository.AssertExpectations(t)
+			assert.Equal(t, 1, user.RoleID)
+			mockUserRepository.AssertExpectations(t)
+			mockRoleRepository.AssertExpectations(t)
 		})
 	}
 }
 
 func TestSignupUserUseCase_Execute_PasswordIsHashed(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -309,16 +358,25 @@ func TestSignupUserUseCase_Execute_PasswordIsHashed(t *testing.T) {
 		Password: "MySecretPassword123!",
 	}
 
-	// Mock: User doesn't exist
-	mockRepository.On("FindByEmail", ctx, "test@example.com").Return(nil, errors.ErrNotFound("User not found"))
+	// Mock: User doesn't exist (returns nil, nil per architecture)
+	mockUserRepository.On("FindByEmail", ctx, "test@example.com").Return(nil, nil)
+
+	// Mock: Default role exists
+	defaultRole := &entities.Role{
+		ID:           1,
+		Code:         constants.DefaultUserRole,
+		RecordStatus: constants.RecordStatus.Active,
+	}
+	mockRoleRepository.On("FindByCode", ctx, constants.DefaultUserRole).Return(defaultRole, nil)
 
 	// Mock: Create succeeds
 	var capturedPasswordHash string
-	mockRepository.On("Create", ctx, mock.AnythingOfType("*entities.User")).
+	mockUserRepository.On("Create", ctx, mock.AnythingOfType("*entities.User")).
 		Run(func(args mock.Arguments) {
 			user := args.Get(1).(*entities.User)
 			capturedPasswordHash = user.PasswordHash
 			user.ID = 1
+			user.RoleID = 1
 		}).
 		Return(nil)
 
@@ -332,15 +390,82 @@ func TestSignupUserUseCase_Execute_PasswordIsHashed(t *testing.T) {
 	assert.NotEmpty(t, capturedPasswordHash)
 	assert.True(t, len(capturedPasswordHash) > 50, "Bcrypt hash should be at least 50 characters")
 	assert.Contains(t, capturedPasswordHash, "$2a$", "Should be a bcrypt hash")
-	mockRepository.AssertExpectations(t)
+	mockUserRepository.AssertExpectations(t)
+	mockRoleRepository.AssertExpectations(t)
+}
+
+func TestSignupUserUseCase_Execute_RoleNotFound(t *testing.T) {
+	// Arrange
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	ctx := context.Background()
+
+	request := auth.SignupRequest{
+		Email:    "test@example.com",
+		Password: "ValidPass123!",
+	}
+
+	// Mock: User doesn't exist
+	mockUserRepository.On("FindByEmail", ctx, "test@example.com").Return(nil, nil)
+
+	// Mock: Role doesn't exist physically (returns nil, nil per architecture)
+	mockRoleRepository.On("FindByCode", ctx, constants.DefaultUserRole).Return(nil, nil)
+
+	// Act
+	user, err := useCase.Execute(ctx, request)
+
+	// Assert
+	assert.Error(t, err)
+	assert.Nil(t, user)
+	assert.Contains(t, err.Error(), "default role")
+	mockUserRepository.AssertExpectations(t)
+	mockRoleRepository.AssertExpectations(t)
+	mockUserRepository.AssertNotCalled(t, "Create")
+}
+
+func TestSignupUserUseCase_Execute_RoleInactive(t *testing.T) {
+	// Arrange
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	ctx := context.Background()
+
+	request := auth.SignupRequest{
+		Email:    "test@example.com",
+		Password: "ValidPass123!",
+	}
+
+	// Mock: User doesn't exist
+	mockUserRepository.On("FindByEmail", ctx, "test@example.com").Return(nil, nil)
+
+	// Mock: Role exists but is inactive (logical deletion)
+	inactiveRole := &entities.Role{
+		ID:           1,
+		Code:         constants.DefaultUserRole,
+		RecordStatus: constants.RecordStatus.Inactive,
+	}
+	mockRoleRepository.On("FindByCode", ctx, constants.DefaultUserRole).Return(inactiveRole, nil)
+
+	// Act
+	user, err := useCase.Execute(ctx, request)
+
+	// Assert
+	assert.Error(t, err)
+	assert.Nil(t, user)
+	assert.Contains(t, err.Error(), "is not active")
+	mockUserRepository.AssertExpectations(t)
+	mockRoleRepository.AssertExpectations(t)
+	mockUserRepository.AssertNotCalled(t, "Create")
 }
 
 func TestNewSignupUserUseCase_ReturnsValidInstance(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
 
 	// Act
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 
 	// Assert
 	assert.NotNil(t, useCase)

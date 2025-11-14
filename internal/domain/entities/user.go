@@ -8,6 +8,7 @@ import (
 // User represents the user entity in the domain layer
 type User struct {
 	ID                int
+	RoleID            int
 	Email             string
 	PasswordHash      string
 	EmailVerified     bool

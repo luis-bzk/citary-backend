@@ -18,6 +18,7 @@ func NewUserMapper() *UserMapper {
 func (m *UserMapper) ToDBEntity(user *domainEntities.User) *dbEntities.UserDB {
 	dbEntity := &dbEntities.UserDB{
 		UseID:               user.ID,
+		IdRole:              user.RoleID,
 		UseEmail:            user.Email,
 		UsePasswordHash:     user.PasswordHash,
 		UseEmailVerified:    user.EmailVerified,
@@ -56,6 +57,7 @@ func (m *UserMapper) ToDBEntity(user *domainEntities.User) *dbEntities.UserDB {
 func (m *UserMapper) ToDomainEntity(dbEntity *dbEntities.UserDB) *domainEntities.User {
 	user := &domainEntities.User{
 		ID:               dbEntity.UseID,
+		RoleID:           dbEntity.IdRole,
 		Email:            dbEntity.UseEmail,
 		PasswordHash:     dbEntity.UsePasswordHash,
 		EmailVerified:    dbEntity.UseEmailVerified,

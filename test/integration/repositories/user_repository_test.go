@@ -56,10 +56,9 @@ func TestUserRepository_FindByEmail_NotFound(t *testing.T) {
 	// Act
 	user, err := repo.FindByEmail(ctx, nonExistentEmail)
 
-	// Assert
-	assert.Error(t, err)
+	// Assert - Repository returns (nil, nil) when not found per architecture
+	assert.NoError(t, err)
 	assert.Nil(t, user)
-	assert.Contains(t, err.Error(), "User not found")
 }
 
 func TestUserRepository_FindByEmail_EmptyEmail(t *testing.T) {
@@ -91,6 +90,7 @@ func TestUserRepository_Create_DuplicateEmail(t *testing.T) {
 	user1 := &entities.User{
 		Email:        testEmail,
 		PasswordHash: "hashed_password",
+		RoleID:       1, // Assumes default role exists in test DB
 		CreatedDate:  time.Now(),
 		RecordStatus: constants.RecordStatus.Active,
 	}
@@ -103,6 +103,7 @@ func TestUserRepository_Create_DuplicateEmail(t *testing.T) {
 	user2 := &entities.User{
 		Email:        testEmail, // Same email
 		PasswordHash: "different_hash",
+		RoleID:       1,
 		CreatedDate:  time.Now(),
 		RecordStatus: constants.RecordStatus.Active,
 	}
@@ -132,6 +133,7 @@ func TestUserRepository_Create_Success(t *testing.T) {
 	user := &entities.User{
 		Email:            testEmail,
 		PasswordHash:     "hashed_password_123",
+		RoleID:           1, // Assumes default role exists in test DB
 		EmailVerified:    false,
 		PhoneVerified:    false,
 		TwoFactorEnabled: false,
@@ -152,6 +154,7 @@ func TestUserRepository_Create_Success(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, foundUser)
 	assert.Equal(t, testEmail, foundUser.Email)
+	assert.Equal(t, 1, foundUser.RoleID)
 	assert.Equal(t, "hashed_password_123", foundUser.PasswordHash)
 	assert.False(t, foundUser.EmailVerified)
 	assert.False(t, foundUser.PhoneVerified)
@@ -174,6 +177,7 @@ func TestUserRepository_FindByEmail_Success(t *testing.T) {
 	user := &entities.User{
 		Email:        testEmail,
 		PasswordHash: "hashed_password_456",
+		RoleID:       1, // Assumes default role exists in test DB
 		CreatedDate:  time.Now(),
 		RecordStatus: constants.RecordStatus.Active,
 	}
@@ -187,6 +191,7 @@ func TestUserRepository_FindByEmail_Success(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, foundUser)
 	assert.Equal(t, user.ID, foundUser.ID)
+	assert.Equal(t, 1, foundUser.RoleID)
 	assert.Equal(t, testEmail, foundUser.Email)
 	assert.Equal(t, "hashed_password_456", foundUser.PasswordHash)
 }
@@ -208,6 +213,7 @@ func TestUserRepository_Create_WithOptionalFields(t *testing.T) {
 	user := &entities.User{
 		Email:            testEmail,
 		PasswordHash:     "hashed_password",
+		RoleID:           1, // Assumes default role exists in test DB
 		EmailVerified:    true,
 		PhoneVerified:    true,
 		TwoFactorEnabled: true,
@@ -229,6 +235,7 @@ func TestUserRepository_Create_WithOptionalFields(t *testing.T) {
 	foundUser, err := repo.FindByEmail(ctx, testEmail)
 	assert.NoError(t, err)
 	assert.NotNil(t, foundUser)
+	assert.Equal(t, 1, foundUser.RoleID)
 	assert.True(t, foundUser.EmailVerified)
 	assert.True(t, foundUser.PhoneVerified)
 	assert.True(t, foundUser.TwoFactorEnabled)
@@ -252,6 +259,7 @@ func TestUserRepository_FindByEmail_WithNullOptionalFields(t *testing.T) {
 	user := &entities.User{
 		Email:            testEmail,
 		PasswordHash:     "hashed_password",
+		RoleID:           1, // Assumes default role exists in test DB
 		EmailVerified:    false,
 		PhoneVerified:    false,
 		TwoFactorEnabled: false,
@@ -273,6 +281,7 @@ func TestUserRepository_FindByEmail_WithNullOptionalFields(t *testing.T) {
 	// Assert
 	assert.NoError(t, err)
 	assert.NotNil(t, foundUser)
+	assert.Equal(t, 1, foundUser.RoleID)
 	assert.Nil(t, foundUser.TwoFactorSecret)
 	assert.Nil(t, foundUser.LastLogin)
 	assert.Nil(t, foundUser.LockedUntil)
@@ -294,6 +303,7 @@ func TestUserRepository_RoundTrip_PreservesData(t *testing.T) {
 	originalUser := &entities.User{
 		Email:            testEmail,
 		PasswordHash:     "original_hash_789",
+		RoleID:           1, // Assumes default role exists in test DB
 		EmailVerified:    true,
 		PhoneVerified:    false,
 		TwoFactorEnabled: true,
@@ -312,6 +322,7 @@ func TestUserRepository_RoundTrip_PreservesData(t *testing.T) {
 
 	// Assert - All data should be preserved
 	assert.Equal(t, originalUser.ID, foundUser.ID)
+	assert.Equal(t, originalUser.RoleID, foundUser.RoleID)
 	assert.Equal(t, originalUser.Email, foundUser.Email)
 	assert.Equal(t, originalUser.PasswordHash, foundUser.PasswordHash)
 	assert.Equal(t, originalUser.EmailVerified, foundUser.EmailVerified)

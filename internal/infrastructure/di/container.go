@@ -33,9 +33,10 @@ func NewContainer() *Container {
 
 	// Initialize repositories
 	userRepository := repositories.NewUserRepositoryImpl(dbConn.DB)
+	roleRepository := repositories.NewRoleRepositoryImpl(dbConn.DB)
 
 	// Initialize use cases
-	signupUserUseCase := auth.NewSignupUserUseCase(userRepository)
+	signupUserUseCase := auth.NewSignupUserUseCase(userRepository, roleRepository)
 
 	// Initialize HTTP handlers
 	authHandlerInstance := authHandler.NewAuthHandler(signupUserUseCase)

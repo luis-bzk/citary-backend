@@ -3,7 +3,6 @@ package auth_test
 import (
 	"bytes"
 	"citary-backend/internal/domain/entities"
-	"citary-backend/internal/domain/errors"
 	authUseCase "citary-backend/internal/domain/usecases/auth"
 	authHandler "citary-backend/internal/infrastructure/http/handlers/auth"
 	"citary-backend/pkg/constants"
@@ -24,8 +23,9 @@ import (
 
 func TestAuthHandler_SignupUser_MethodNotAllowed(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	handler := authHandler.NewAuthHandler(useCase)
 
 	req := httptest.NewRequest(http.MethodGet, "/auth/signup", nil) // Wrong method
@@ -41,8 +41,9 @@ func TestAuthHandler_SignupUser_MethodNotAllowed(t *testing.T) {
 
 func TestAuthHandler_SignupUser_InvalidJSON(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	handler := authHandler.NewAuthHandler(useCase)
 
 	invalidJSON := bytes.NewBufferString(`{"email": "test@example.com", "password": `)
@@ -59,8 +60,9 @@ func TestAuthHandler_SignupUser_InvalidJSON(t *testing.T) {
 
 func TestAuthHandler_SignupUser_EmptyBody(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	handler := authHandler.NewAuthHandler(useCase)
 
 	req := httptest.NewRequest(http.MethodPost, "/auth/signup", bytes.NewBufferString(""))
@@ -75,8 +77,9 @@ func TestAuthHandler_SignupUser_EmptyBody(t *testing.T) {
 
 func TestAuthHandler_SignupUser_InvalidEmail_Empty(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	handler := authHandler.NewAuthHandler(useCase)
 
 	payload := map[string]string{
@@ -97,8 +100,9 @@ func TestAuthHandler_SignupUser_InvalidEmail_Empty(t *testing.T) {
 
 func TestAuthHandler_SignupUser_InvalidEmail_BadFormat(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	handler := authHandler.NewAuthHandler(useCase)
 
 	payload := map[string]string{
@@ -119,8 +123,9 @@ func TestAuthHandler_SignupUser_InvalidEmail_BadFormat(t *testing.T) {
 
 func TestAuthHandler_SignupUser_InvalidPassword_TooShort(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	handler := authHandler.NewAuthHandler(useCase)
 
 	payload := map[string]string{
@@ -141,17 +146,19 @@ func TestAuthHandler_SignupUser_InvalidPassword_TooShort(t *testing.T) {
 
 func TestAuthHandler_SignupUser_UserAlreadyExists(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	handler := authHandler.NewAuthHandler(useCase)
 
 	existingUser := &entities.User{
-		ID:    1,
-		Email: "existing@example.com",
+		ID:           1,
+		Email:        "existing@example.com",
+		RecordStatus: constants.RecordStatus.Active,
 	}
 
 	// Mock: User already exists
-	mockRepository.On("FindByEmail", mock.Anything, "existing@example.com").Return(existingUser, nil)
+	mockUserRepository.On("FindByEmail", mock.Anything, "existing@example.com").Return(existingUser, nil)
 
 	payload := map[string]string{
 		"email":    "existing@example.com",
@@ -167,7 +174,7 @@ func TestAuthHandler_SignupUser_UserAlreadyExists(t *testing.T) {
 	// Assert
 	assert.Equal(t, http.StatusConflict, w.Code)
 	assert.Contains(t, w.Body.String(), constants.ErrorMessages.UserAlreadyExists)
-	mockRepository.AssertExpectations(t)
+	mockUserRepository.AssertExpectations(t)
 }
 
 // ==========================================
@@ -176,19 +183,29 @@ func TestAuthHandler_SignupUser_UserAlreadyExists(t *testing.T) {
 
 func TestAuthHandler_SignupUser_Success(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	handler := authHandler.NewAuthHandler(useCase)
 
-	// Mock: User doesn't exist
-	mockRepository.On("FindByEmail", mock.Anything, "newuser@example.com").
-		Return(nil, errors.ErrNotFound("User not found"))
+	// Mock: User doesn't exist (returns nil, nil per architecture)
+	mockUserRepository.On("FindByEmail", mock.Anything, "newuser@example.com").
+		Return(nil, nil)
+
+	// Mock: Default role exists
+	defaultRole := &entities.Role{
+		ID:           1,
+		Code:         constants.DefaultUserRole,
+		RecordStatus: constants.RecordStatus.Active,
+	}
+	mockRoleRepository.On("FindByCode", mock.Anything, constants.DefaultUserRole).Return(defaultRole, nil)
 
 	// Mock: Create succeeds
-	mockRepository.On("Create", mock.Anything, mock.AnythingOfType("*entities.User")).
+	mockUserRepository.On("Create", mock.Anything, mock.AnythingOfType("*entities.User")).
 		Run(func(args mock.Arguments) {
 			user := args.Get(1).(*entities.User)
 			user.ID = 1 // Simulate database setting the ID
+			user.RoleID = 1
 		}).
 		Return(nil)
 
@@ -220,7 +237,7 @@ func TestAuthHandler_SignupUser_Success(t *testing.T) {
 	assert.False(t, data["emailVerified"].(bool))
 	assert.NotEmpty(t, data["createdDate"])
 
-	mockRepository.AssertExpectations(t)
+	mockUserRepository.AssertExpectations(t)
 }
 
 func TestAuthHandler_SignupUser_Success_DifferentEmails(t *testing.T) {
@@ -236,19 +253,29 @@ func TestAuthHandler_SignupUser_Success_DifferentEmails(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Arrange
-			mockRepository := new(mockRepo.MockUserRepository)
-			useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+			mockUserRepository := new(mockRepo.MockUserRepository)
+			mockRoleRepository := new(mockRepo.MockRoleRepository)
+			useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 			handler := authHandler.NewAuthHandler(useCase)
 
-			// Mock: User doesn't exist
-			mockRepository.On("FindByEmail", mock.Anything, tc.email).
-				Return(nil, errors.ErrNotFound("User not found"))
+			// Mock: User doesn't exist (returns nil, nil per architecture)
+			mockUserRepository.On("FindByEmail", mock.Anything, tc.email).
+				Return(nil, nil)
+
+			// Mock: Default role exists
+			defaultRole := &entities.Role{
+				ID:           1,
+				Code:         constants.DefaultUserRole,
+				RecordStatus: constants.RecordStatus.Active,
+			}
+			mockRoleRepository.On("FindByCode", mock.Anything, constants.DefaultUserRole).Return(defaultRole, nil)
 
 			// Mock: Create succeeds
-			mockRepository.On("Create", mock.Anything, mock.AnythingOfType("*entities.User")).
+			mockUserRepository.On("Create", mock.Anything, mock.AnythingOfType("*entities.User")).
 				Run(func(args mock.Arguments) {
 					user := args.Get(1).(*entities.User)
 					user.ID = 1
+					user.RoleID = 1
 				}).
 				Return(nil)
 
@@ -274,28 +301,38 @@ func TestAuthHandler_SignupUser_Success_DifferentEmails(t *testing.T) {
 			data := response["data"].(map[string]interface{})
 			assert.Equal(t, tc.email, data["email"])
 
-			mockRepository.AssertExpectations(t)
+			mockUserRepository.AssertExpectations(t)
 		})
 	}
 }
 
 func TestAuthHandler_SignupUser_ResponseFormat(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 	handler := authHandler.NewAuthHandler(useCase)
 
 	ctx := context.Background()
 
-	// Mock: User doesn't exist
-	mockRepository.On("FindByEmail", ctx, "format@example.com").
-		Return(nil, errors.ErrNotFound("User not found"))
+	// Mock: User doesn't exist (returns nil, nil per architecture)
+	mockUserRepository.On("FindByEmail", ctx, "format@example.com").
+		Return(nil, nil)
+
+	// Mock: Default role exists
+	defaultRole := &entities.Role{
+		ID:           1,
+		Code:         constants.DefaultUserRole,
+		RecordStatus: constants.RecordStatus.Active,
+	}
+	mockRoleRepository.On("FindByCode", ctx, constants.DefaultUserRole).Return(defaultRole, nil)
 
 	// Mock: Create succeeds
-	mockRepository.On("Create", ctx, mock.AnythingOfType("*entities.User")).
+	mockUserRepository.On("Create", ctx, mock.AnythingOfType("*entities.User")).
 		Run(func(args mock.Arguments) {
 			user := args.Get(1).(*entities.User)
 			user.ID = 99
+			user.RoleID = 1
 		}).
 		Return(nil)
 
@@ -333,13 +370,14 @@ func TestAuthHandler_SignupUser_ResponseFormat(t *testing.T) {
 	assert.NotContains(t, data, "password", "Password should not be in response")
 	assert.NotContains(t, data, "passwordHash", "Password hash should not be in response")
 
-	mockRepository.AssertExpectations(t)
+	mockUserRepository.AssertExpectations(t)
 }
 
 func TestNewAuthHandler_ReturnsValidInstance(t *testing.T) {
 	// Arrange
-	mockRepository := new(mockRepo.MockUserRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockRepository)
+	mockUserRepository := new(mockRepo.MockUserRepository)
+	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
 
 	// Act
 	handler := authHandler.NewAuthHandler(useCase)

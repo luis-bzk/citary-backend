@@ -8,6 +8,7 @@ import (
 // UserDB represents the user table structure in PostgreSQL
 type UserDB struct {
 	UseID                int            `db:"use_id"`
+	IdRole               int            `db:"id_role"`
 	UseEmail             string         `db:"use_email"`
 	UsePasswordHash      string         `db:"use_password_hash"`
 	UseEmailVerified     bool           `db:"use_email_verified"`
