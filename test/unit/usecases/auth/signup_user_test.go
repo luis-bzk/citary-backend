@@ -7,6 +7,7 @@ import (
 	authUseCase "citary-backend/internal/domain/usecases/auth"
 	"citary-backend/pkg/constants"
 	mockRepo "citary-backend/test/mocks/repositories"
+	mockService "citary-backend/test/mocks/services"
 	"context"
 	"testing"
 	"time"
@@ -23,7 +24,8 @@ func TestSignupUserUseCase_Execute_InvalidEmail_Empty(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -47,7 +49,8 @@ func TestSignupUserUseCase_Execute_InvalidEmail_BadFormat(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -71,7 +74,8 @@ func TestSignupUserUseCase_Execute_InvalidPassword_TooShort(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -95,7 +99,8 @@ func TestSignupUserUseCase_Execute_InvalidPassword_NoUppercase(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -119,7 +124,8 @@ func TestSignupUserUseCase_Execute_InvalidPassword_NoDigit(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -143,7 +149,8 @@ func TestSignupUserUseCase_Execute_InvalidPassword_NoSpecialChar(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -167,7 +174,8 @@ func TestSignupUserUseCase_Execute_UserAlreadyExists(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -200,7 +208,8 @@ func TestSignupUserUseCase_Execute_RepositoryCreateError(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -240,7 +249,8 @@ func TestSignupUserUseCase_Execute_Success(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -267,6 +277,9 @@ func TestSignupUserUseCase_Execute_Success(t *testing.T) {
 		}).
 		Return(nil)
 
+	// Mock: Email service succeeds
+	mockEmailService.On("SendVerificationEmail", ctx, "newuser@example.com", mock.AnythingOfType("string")).Return(nil)
+
 	// Act
 	user, err := useCase.Execute(ctx, request)
 
@@ -278,6 +291,11 @@ func TestSignupUserUseCase_Execute_Success(t *testing.T) {
 	assert.NotEmpty(t, user.PasswordHash, "Password should be hashed")
 	assert.NotEqual(t, "ValidPass123!", user.PasswordHash, "Password should not be stored in plain text")
 	assert.False(t, user.EmailVerified)
+	assert.NotNil(t, user.VerificationToken, "Verification token should be set")
+	assert.NotEmpty(t, *user.VerificationToken, "Verification token should not be empty")
+	assert.Equal(t, 64, len(*user.VerificationToken), "Token should be 64 characters (32 bytes hex)")
+	assert.NotNil(t, user.VerificationTokenExpiresAt, "Token expiration should be set")
+	assert.True(t, user.VerificationTokenExpiresAt.After(time.Now()), "Token should not be expired")
 	assert.False(t, user.PhoneVerified)
 	assert.False(t, user.TwoFactorEnabled)
 	assert.Equal(t, 0, user.LoginAttempts)
@@ -286,6 +304,7 @@ func TestSignupUserUseCase_Execute_Success(t *testing.T) {
 	assert.True(t, user.CreatedDate.Before(time.Now().Add(1*time.Second)))
 	mockUserRepository.AssertExpectations(t)
 	mockRoleRepository.AssertExpectations(t)
+	mockEmailService.AssertExpectations(t)
 }
 
 func TestSignupUserUseCase_Execute_Success_DifferentEmails(t *testing.T) {
@@ -304,7 +323,8 @@ func TestSignupUserUseCase_Execute_Success_DifferentEmails(t *testing.T) {
 			// Arrange
 			mockUserRepository := new(mockRepo.MockUserRepository)
 			mockRoleRepository := new(mockRepo.MockRoleRepository)
-			useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+			mockEmailService := new(mockService.MockEmailService)
+			useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 			ctx := context.Background()
 
 			request := auth.SignupRequest{
@@ -332,6 +352,9 @@ func TestSignupUserUseCase_Execute_Success_DifferentEmails(t *testing.T) {
 				}).
 				Return(nil)
 
+			// Mock: Email service succeeds
+			mockEmailService.On("SendVerificationEmail", ctx, tc.email, mock.AnythingOfType("string")).Return(nil)
+
 			// Act
 			user, err := useCase.Execute(ctx, request)
 
@@ -342,6 +365,7 @@ func TestSignupUserUseCase_Execute_Success_DifferentEmails(t *testing.T) {
 			assert.Equal(t, 1, user.RoleID)
 			mockUserRepository.AssertExpectations(t)
 			mockRoleRepository.AssertExpectations(t)
+			mockEmailService.AssertExpectations(t)
 		})
 	}
 }
@@ -350,7 +374,8 @@ func TestSignupUserUseCase_Execute_PasswordIsHashed(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -380,6 +405,9 @@ func TestSignupUserUseCase_Execute_PasswordIsHashed(t *testing.T) {
 		}).
 		Return(nil)
 
+	// Mock: Email service succeeds
+	mockEmailService.On("SendVerificationEmail", ctx, "test@example.com", mock.AnythingOfType("string")).Return(nil)
+
 	// Act
 	user, err := useCase.Execute(ctx, request)
 
@@ -392,13 +420,15 @@ func TestSignupUserUseCase_Execute_PasswordIsHashed(t *testing.T) {
 	assert.Contains(t, capturedPasswordHash, "$2a$", "Should be a bcrypt hash")
 	mockUserRepository.AssertExpectations(t)
 	mockRoleRepository.AssertExpectations(t)
+	mockEmailService.AssertExpectations(t)
 }
 
 func TestSignupUserUseCase_Execute_RoleNotFound(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -428,7 +458,8 @@ func TestSignupUserUseCase_Execute_RoleInactive(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 	ctx := context.Background()
 
 	request := auth.SignupRequest{
@@ -463,9 +494,10 @@ func TestNewSignupUserUseCase_ReturnsValidInstance(t *testing.T) {
 	// Arrange
 	mockUserRepository := new(mockRepo.MockUserRepository)
 	mockRoleRepository := new(mockRepo.MockRoleRepository)
+	mockEmailService := new(mockService.MockEmailService)
 
 	// Act
-	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository)
+	useCase := authUseCase.NewSignupUserUseCase(mockUserRepository, mockRoleRepository, mockEmailService)
 
 	// Assert
 	assert.NotNil(t, useCase)
