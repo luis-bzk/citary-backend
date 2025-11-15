@@ -8,6 +8,7 @@ import (
 	"citary-backend/internal/infrastructure/http/router"
 	"citary-backend/internal/infrastructure/persistence/postgres"
 	"citary-backend/internal/infrastructure/persistence/postgres/repositories"
+	"citary-backend/internal/infrastructure/services"
 	"context"
 	"log"
 	"time"
@@ -35,8 +36,11 @@ func NewContainer() *Container {
 	userRepository := repositories.NewUserRepositoryImpl(dbConn.DB)
 	roleRepository := repositories.NewRoleRepositoryImpl(dbConn.DB)
 
+	// Initialize services
+	emailService := services.NewSMTPEmailService(cfg)
+
 	// Initialize use cases
-	signupUserUseCase := auth.NewSignupUserUseCase(userRepository, roleRepository)
+	signupUserUseCase := auth.NewSignupUserUseCase(userRepository, roleRepository, emailService)
 
 	// Initialize HTTP handlers
 	authHandlerInstance := authHandler.NewAuthHandler(signupUserUseCase)

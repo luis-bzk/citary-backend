@@ -10,8 +10,22 @@ import (
 
 // Config holds application configuration
 type Config struct {
+	// Server configuration
+	Port int
+
+	// Database configuration
 	DatabaseURL string
-	Port        int
+
+	// SMTP configuration
+	SMTPHost      string
+	SMTPPort      string
+	SMTPUsername  string
+	SMTPPassword  string
+	SMTPFromEmail string
+	SMTPFromName  string
+
+	// Frontend configuration
+	FrontendURL string
 }
 
 // AppConfig is the global configuration instance
@@ -23,19 +37,56 @@ func Load() {
 		log.Println("No .env file found, using system environment variables")
 	}
 
+	// Required variables
 	databaseURL := getEnv("DATABASE_URL", "")
 	if databaseURL == "" {
 		log.Fatal("DATABASE_URL environment variable is required")
 	}
 
-	port := getEnvAsInt("PORT", 3001)
-
-	AppConfig = &Config{
-		DatabaseURL: databaseURL,
-		Port:        port,
+	smtpHost := getEnv("SMTP_HOST", "")
+	if smtpHost == "" {
+		log.Fatal("SMTP_HOST environment variable is required")
 	}
 
-	log.Printf("Configuration loaded: PORT=%d", AppConfig.Port)
+	smtpPort := getEnv("SMTP_PORT", "")
+	if smtpPort == "" {
+		log.Fatal("SMTP_PORT environment variable is required")
+	}
+
+	smtpUsername := getEnv("SMTP_USERNAME", "")
+	if smtpUsername == "" {
+		log.Fatal("SMTP_USERNAME environment variable is required")
+	}
+
+	smtpPassword := getEnv("SMTP_PASSWORD", "")
+	if smtpPassword == "" {
+		log.Fatal("SMTP_PASSWORD environment variable is required")
+	}
+
+	smtpFromEmail := getEnv("SMTP_FROM_EMAIL", "")
+	if smtpFromEmail == "" {
+		log.Fatal("SMTP_FROM_EMAIL environment variable is required")
+	}
+
+	// Optional variables with defaults
+	port := getEnvAsInt("PORT", 3001)
+	smtpFromName := getEnv("SMTP_FROM_NAME", "Citary")
+	frontendURL := getEnv("FRONTEND_URL", "http://localhost:3000")
+
+	AppConfig = &Config{
+		Port:          port,
+		DatabaseURL:   databaseURL,
+		SMTPHost:      smtpHost,
+		SMTPPort:      smtpPort,
+		SMTPUsername:  smtpUsername,
+		SMTPPassword:  smtpPassword,
+		SMTPFromEmail: smtpFromEmail,
+		SMTPFromName:  smtpFromName,
+		FrontendURL:   frontendURL,
+	}
+
+	log.Printf("Configuration loaded: PORT=%d, SMTP_HOST=%s, FRONTEND_URL=%s",
+		AppConfig.Port, AppConfig.SMTPHost, AppConfig.FrontendURL)
 }
 
 // getEnv retrieves an environment variable or returns a default value

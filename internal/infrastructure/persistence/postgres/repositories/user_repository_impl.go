@@ -34,6 +34,7 @@ func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*en
 
 	query := `
 		SELECT use_id, id_role, use_email, use_password_hash, use_email_verified,
+		       use_verification_token, use_verification_token_expires_at,
 		       use_phone_verified, use_two_factor_enabled, use_two_factor_secret,
 		       use_last_login, use_login_attempts, use_locked_until,
 		       use_terms_accepted_at, use_privacy_accepted_at, use_created_date, use_record_status
@@ -48,6 +49,8 @@ func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*en
 		&dbEntity.UseEmail,
 		&dbEntity.UsePasswordHash,
 		&dbEntity.UseEmailVerified,
+		&dbEntity.UseVerificationToken,
+		&dbEntity.UseVerificationTokenExpiresAt,
 		&dbEntity.UsePhoneVerified,
 		&dbEntity.UseTwoFactorEnabled,
 		&dbEntity.UseTwoFactorSecret,
@@ -83,26 +86,33 @@ func (r *UserRepositoryImpl) Create(ctx context.Context, user *entities.User) er
 	start := time.Now()
 	log.Printf("[UserRepository] Create: email=%s, roleID=%d, emailVerified=%v", user.Email, user.RoleID, user.EmailVerified)
 
+	// Convert domain entity to DB entity to handle nullable fields properly
+	dbEntity := r.mapper.ToDBEntity(user)
+
 	query := `
 		INSERT INTO data.data_user (
-			id_role, use_email, use_password_hash, use_email_verified, use_phone_verified,
-			use_two_factor_enabled, use_login_attempts, use_created_date, use_record_status
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			id_role, use_email, use_password_hash, use_email_verified,
+			use_verification_token, use_verification_token_expires_at,
+			use_phone_verified, use_two_factor_enabled, use_login_attempts,
+			use_created_date, use_record_status
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		RETURNING use_id
 	`
 
 	err := r.db.QueryRowContext(
 		ctx,
 		query,
-		user.RoleID,
-		user.Email,
-		user.PasswordHash,
-		user.EmailVerified,
-		user.PhoneVerified,
-		user.TwoFactorEnabled,
-		user.LoginAttempts,
-		user.CreatedDate,
-		user.RecordStatus,
+		dbEntity.IdRole,
+		dbEntity.UseEmail,
+		dbEntity.UsePasswordHash,
+		dbEntity.UseEmailVerified,
+		dbEntity.UseVerificationToken,
+		dbEntity.UseVerificationTokenExpiresAt,
+		dbEntity.UsePhoneVerified,
+		dbEntity.UseTwoFactorEnabled,
+		dbEntity.UseLoginAttempts,
+		dbEntity.UseCreatedDate,
+		dbEntity.UseRecordStatus,
 	).Scan(&user.ID)
 
 	duration := time.Since(start)

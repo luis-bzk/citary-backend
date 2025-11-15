@@ -30,6 +30,14 @@ func (m *UserMapper) ToDBEntity(user *domainEntities.User) *dbEntities.UserDB {
 	}
 
 	// Handle optional fields
+	if user.VerificationToken != nil {
+		dbEntity.UseVerificationToken = sql.NullString{String: *user.VerificationToken, Valid: true}
+	}
+
+	if user.VerificationTokenExpiresAt != nil {
+		dbEntity.UseVerificationTokenExpiresAt = sql.NullTime{Time: *user.VerificationTokenExpiresAt, Valid: true}
+	}
+
 	if user.TwoFactorSecret != nil {
 		dbEntity.UseTwoFactorSecret = sql.NullString{String: *user.TwoFactorSecret, Valid: true}
 	}
@@ -69,6 +77,16 @@ func (m *UserMapper) ToDomainEntity(dbEntity *dbEntities.UserDB) *domainEntities
 	}
 
 	// Handle optional fields
+	if dbEntity.UseVerificationToken.Valid {
+		token := dbEntity.UseVerificationToken.String
+		user.VerificationToken = &token
+	}
+
+	if dbEntity.UseVerificationTokenExpiresAt.Valid {
+		expiresAt := dbEntity.UseVerificationTokenExpiresAt.Time
+		user.VerificationTokenExpiresAt = &expiresAt
+	}
+
 	if dbEntity.UseTwoFactorSecret.Valid {
 		secret := dbEntity.UseTwoFactorSecret.String
 		user.TwoFactorSecret = &secret
