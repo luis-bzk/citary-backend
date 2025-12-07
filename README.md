@@ -49,68 +49,6 @@ A modern, production-ready Go backend API built with Clean Architecture principl
    ./citary-backend
    ```
 
-## 📡 API Endpoints
-
-### Authentication
-
-#### **User Signup**
-```http
-POST /auth/signup
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "SecurePass123!"
-}
-```
-
-**Success Response (201 Created)**
-```json
-{
-  "success": true,
-  "message": "User created successfully",
-  "data": {
-    "id": 1,
-    "email": "user@example.com",
-    "emailVerified": false,
-    "createdDate": "2024-10-31T22:00:00Z"
-  }
-}
-```
-
-**Error Response (400 Bad Request)**
-```json
-{
-  "success": false,
-  "message": "Email format is invalid",
-  "error": {
-    "code": 400,
-    "message": "Email format is invalid"
-  }
-}
-```
-
-**Password Requirements:**
-- Minimum 8 characters
-- At least one uppercase letter
-- At least one lowercase letter
-- At least one digit
-- At least one special character
-
-### Health Check
-
-#### **Health Status**
-```http
-GET /health
-```
-
-**Response (200 OK)**
-```json
-{
-  "status": "ok"
-}
-```
-
 ## 🏗️ Project Structure
 
 ```
@@ -305,48 +243,6 @@ go install honnef.co/go/tools/cmd/staticcheck@latest
 
 # Run staticcheck
 staticcheck ./...
-```
-
-### Testing
-
-#### Run Tests
-```bash
-# Run all tests
-go test ./...
-
-# Run tests with verbose output
-go test -v ./...
-
-# Run tests with coverage
-go test -cover ./...
-
-# Generate coverage report
-go test -coverprofile=coverage.out ./...
-go tool cover -html=coverage.out
-
-# Run specific test
-go test -v -run TestSignupUserUseCase ./internal/domain/usecases/auth/
-
-# Run tests with race detector
-go test -race ./...
-
-# Run benchmarks
-go test -bench=. ./...
-```
-
-#### Test Coverage
-```bash
-# Generate coverage for all packages
-go test -coverprofile=coverage.out ./...
-
-# View coverage in terminal
-go tool cover -func=coverage.out
-
-# View coverage in browser
-go tool cover -html=coverage.out
-
-# Coverage with specific threshold
-go test -cover ./... | grep -E "coverage: [0-9]+\.[0-9]+%"
 ```
 
 ### Clean Project
@@ -573,67 +469,6 @@ WriteTimeout: 15 seconds
 IdleTimeout:  60 seconds
 ```
 
-## 📊 Database Schema
-
-### `data.data_user` Table
-
-```sql
-CREATE TABLE data.data_user (
-    use_id                SERIAL PRIMARY KEY,
-    use_email             VARCHAR(100) UNIQUE NOT NULL,
-    use_password_hash     TEXT NOT NULL,
-    use_email_verified    BOOLEAN DEFAULT FALSE,
-    use_phone_verified    BOOLEAN DEFAULT FALSE,
-    use_two_factor_enabled BOOLEAN DEFAULT FALSE,
-    use_two_factor_secret TEXT,
-    use_last_login        TIMESTAMP,
-    use_login_attempts    INTEGER DEFAULT 0,
-    use_locked_until      TIMESTAMP,
-    use_terms_accepted_at TIMESTAMP,
-    use_privacy_accepted_at TIMESTAMP,
-    use_created_date      TIMESTAMP DEFAULT NOW(),
-    use_record_status     VARCHAR(1) DEFAULT '0'
-);
-```
-
-## 🎯 Roadmap
-
-Future enhancements planned:
-
-- [ ] Unit tests with mocks
-- [ ] Integration tests
-- [ ] User login endpoint
-- [ ] JWT authentication & authorization
-- [ ] Email verification flow
-- [ ] Password reset functionality
-- [ ] Refresh token mechanism
-- [ ] Rate limiting middleware
-- [ ] API versioning (v1, v2)
-- [ ] OpenAPI/Swagger documentation
-- [ ] Docker & Docker Compose support
-- [ ] CI/CD pipeline (GitHub Actions)
-- [ ] Monitoring & observability (Prometheus, Grafana)
-- [ ] Distributed tracing (OpenTelemetry)
-
-## 🧪 Testing
-
-Testing structure (to be implemented):
-
-```
-internal/
-├── domain/
-│   └── usecases/
-│       └── auth/
-│           ├── signup_user.go
-│           └── signup_user_test.go
-└── infrastructure/
-    └── http/
-        └── handlers/
-            └── auth/
-                ├── auth_handler.go
-                └── auth_handler_test.go
-```
-
 ## 🤝 Contributing
 
 1. Follow Go best practices and conventions
@@ -657,11 +492,11 @@ This project follows:
 
 ## 📄 License
 
-[Add your license here]
+N/A :(
 
 ## 👤 Author
 
-[Add author information]
+Luis :)
 
 ---
 

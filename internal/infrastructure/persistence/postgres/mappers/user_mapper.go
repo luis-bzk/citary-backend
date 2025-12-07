@@ -17,16 +17,14 @@ func NewUserMapper() *UserMapper {
 // ToDBEntity converts a domain User entity to a database UserDB entity
 func (m *UserMapper) ToDBEntity(user *domainEntities.User) *dbEntities.UserDB {
 	dbEntity := &dbEntities.UserDB{
-		UseID:               user.ID,
-		IdRole:              user.RoleID,
-		UseEmail:            user.Email,
-		UsePasswordHash:     user.PasswordHash,
-		UseEmailVerified:    user.EmailVerified,
-		UsePhoneVerified:    user.PhoneVerified,
-		UseTwoFactorEnabled: user.TwoFactorEnabled,
-		UseLoginAttempts:    user.LoginAttempts,
-		UseCreatedDate:      user.CreatedDate,
-		UseRecordStatus:     user.RecordStatus,
+		UseID:            user.ID,
+		IdRole:           user.RoleID,
+		UseEmail:         user.Email,
+		UsePasswordHash:  user.PasswordHash,
+		UseEmailVerified: user.EmailVerified,
+		UseLoginAttempts: user.LoginAttempts,
+		UseCreatedDate:   user.CreatedDate,
+		UseRecordStatus:  user.RecordStatus,
 	}
 
 	// Handle optional fields
@@ -36,10 +34,6 @@ func (m *UserMapper) ToDBEntity(user *domainEntities.User) *dbEntities.UserDB {
 
 	if user.VerificationTokenExpiresAt != nil {
 		dbEntity.UseVerificationTokenExpiresAt = sql.NullTime{Time: *user.VerificationTokenExpiresAt, Valid: true}
-	}
-
-	if user.TwoFactorSecret != nil {
-		dbEntity.UseTwoFactorSecret = sql.NullString{String: *user.TwoFactorSecret, Valid: true}
 	}
 
 	if user.LastLogin != nil {
@@ -64,16 +58,14 @@ func (m *UserMapper) ToDBEntity(user *domainEntities.User) *dbEntities.UserDB {
 // ToDomainEntity converts a database UserDB entity to a domain User entity
 func (m *UserMapper) ToDomainEntity(dbEntity *dbEntities.UserDB) *domainEntities.User {
 	user := &domainEntities.User{
-		ID:               dbEntity.UseID,
-		RoleID:           dbEntity.IdRole,
-		Email:            dbEntity.UseEmail,
-		PasswordHash:     dbEntity.UsePasswordHash,
-		EmailVerified:    dbEntity.UseEmailVerified,
-		PhoneVerified:    dbEntity.UsePhoneVerified,
-		TwoFactorEnabled: dbEntity.UseTwoFactorEnabled,
-		LoginAttempts:    dbEntity.UseLoginAttempts,
-		CreatedDate:      dbEntity.UseCreatedDate,
-		RecordStatus:     dbEntity.UseRecordStatus,
+		ID:            dbEntity.UseID,
+		RoleID:        dbEntity.IdRole,
+		Email:         dbEntity.UseEmail,
+		PasswordHash:  dbEntity.UsePasswordHash,
+		EmailVerified: dbEntity.UseEmailVerified,
+		LoginAttempts: dbEntity.UseLoginAttempts,
+		CreatedDate:   dbEntity.UseCreatedDate,
+		RecordStatus:  dbEntity.UseRecordStatus,
 	}
 
 	// Handle optional fields
@@ -85,11 +77,6 @@ func (m *UserMapper) ToDomainEntity(dbEntity *dbEntities.UserDB) *domainEntities
 	if dbEntity.UseVerificationTokenExpiresAt.Valid {
 		expiresAt := dbEntity.UseVerificationTokenExpiresAt.Time
 		user.VerificationTokenExpiresAt = &expiresAt
-	}
-
-	if dbEntity.UseTwoFactorSecret.Valid {
-		secret := dbEntity.UseTwoFactorSecret.String
-		user.TwoFactorSecret = &secret
 	}
 
 	if dbEntity.UseLastLogin.Valid {

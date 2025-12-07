@@ -14,9 +14,6 @@ type UserDB struct {
 	UseEmailVerified              bool           `db:"use_email_verified"`
 	UseVerificationToken          sql.NullString `db:"use_verification_token"`
 	UseVerificationTokenExpiresAt sql.NullTime   `db:"use_verification_token_expires_at"`
-	UsePhoneVerified              bool           `db:"use_phone_verified"`
-	UseTwoFactorEnabled           bool           `db:"use_two_factor_enabled"`
-	UseTwoFactorSecret            sql.NullString `db:"use_two_factor_secret"`
 	UseLastLogin                  sql.NullTime   `db:"use_last_login"`
 	UseLoginAttempts              int            `db:"use_login_attempts"`
 	UseLockedUntil                sql.NullTime   `db:"use_locked_until"`

@@ -35,7 +35,6 @@ func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*en
 	query := `
 		SELECT use_id, id_role, use_email, use_password_hash, use_email_verified,
 		       use_verification_token, use_verification_token_expires_at,
-		       use_phone_verified, use_two_factor_enabled, use_two_factor_secret,
 		       use_last_login, use_login_attempts, use_locked_until,
 		       use_terms_accepted_at, use_privacy_accepted_at, use_created_date, use_record_status
 		FROM data.data_user
@@ -51,9 +50,6 @@ func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*en
 		&dbEntity.UseEmailVerified,
 		&dbEntity.UseVerificationToken,
 		&dbEntity.UseVerificationTokenExpiresAt,
-		&dbEntity.UsePhoneVerified,
-		&dbEntity.UseTwoFactorEnabled,
-		&dbEntity.UseTwoFactorSecret,
 		&dbEntity.UseLastLogin,
 		&dbEntity.UseLoginAttempts,
 		&dbEntity.UseLockedUntil,
@@ -93,9 +89,8 @@ func (r *UserRepositoryImpl) Create(ctx context.Context, user *entities.User) er
 		INSERT INTO data.data_user (
 			id_role, use_email, use_password_hash, use_email_verified,
 			use_verification_token, use_verification_token_expires_at,
-			use_phone_verified, use_two_factor_enabled, use_login_attempts,
-			use_created_date, use_record_status
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+			use_login_attempts, use_created_date, use_record_status
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING use_id
 	`
 
@@ -108,8 +103,6 @@ func (r *UserRepositoryImpl) Create(ctx context.Context, user *entities.User) er
 		dbEntity.UseEmailVerified,
 		dbEntity.UseVerificationToken,
 		dbEntity.UseVerificationTokenExpiresAt,
-		dbEntity.UsePhoneVerified,
-		dbEntity.UseTwoFactorEnabled,
 		dbEntity.UseLoginAttempts,
 		dbEntity.UseCreatedDate,
 		dbEntity.UseRecordStatus,

@@ -11,8 +11,26 @@ DOCKER_IMAGE := $(DOCKER_REGISTRY)/$(APP_NAME)
 DOCKER_TAG := $(VERSION)
 
 help: ## Show this help
-	@echo "Available commands:"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo Available commands:
+	@echo   build                Build the application locally
+	@echo   run                  Run the application locally
+	@echo   fmt                  Format code
+	@echo   lint                 Run linter
+	@echo   clean                Clean build artifacts
+	@echo   docker-build         Build Docker image
+	@echo   docker-build-no-cache Build Docker image without cache
+	@echo   docker-push          Build and push Docker image to registry
+	@echo   docker-run           Run Docker container locally
+	@echo   docker-test          Build and test Docker image locally
+	@echo   deps-download        Download dependencies
+	@echo   deps-tidy            Tidy dependencies
+	@echo   deps-verify          Verify dependencies
+	@echo   deps-update          Update all dependencies
+	@echo   dev-setup            Setup development environment
+	@echo   dev-db               Start PostgreSQL with Docker
+	@echo   dev-db-stop          Stop PostgreSQL container
+	@echo   version              Show version
+	@echo   info                 Show build information
 
 # Local Development
 build: ## Build the application locally
@@ -23,32 +41,6 @@ run: ## Run the application locally
 	@echo "Running $(APP_NAME)..."
 	go run ./cmd/api
 
-test: ## Run all tests
-	@echo "Running all tests..."
-	go test -v ./test/...
-
-test-unit: ## Run unit tests only
-	@echo "Running unit tests..."
-	go test -v ./test/unit/...
-
-test-integration: ## Run integration tests (without DB)
-	@echo "Running integration tests..."
-	go test -v ./test/integration/handlers/...
-
-test-integration-db: ## Run integration tests with database
-	@echo "Running integration tests with database..."
-	@echo "Make sure TEST_DATABASE_URL is set"
-	@TEST_DATABASE_URL="$(TEST_DATABASE_URL)" go test -v ./test/integration/repositories/...
-
-test-coverage: ## Run tests with coverage report
-	@echo "Running tests with coverage..."
-	go test -coverprofile=coverage.out ./test/...
-	go tool cover -html=coverage.out -o coverage.html
-	@echo "Coverage report: coverage.html"
-
-test-race: ## Run tests with race detector
-	@echo "Running tests with race detector..."
-	go test -v -race ./test/...
 
 fmt: ## Format code
 	@echo "Formatting code..."
@@ -60,7 +52,7 @@ lint: ## Run linter
 
 clean: ## Clean build artifacts
 	@echo "Cleaning..."
-	rm -f $(APP_NAME) $(APP_NAME).exe coverage.out coverage.html
+	-del /Q $(APP_NAME) $(APP_NAME).exe coverage.out coverage.html 2>nul
 	go clean -cache -testcache
 
 # Docker Commands
